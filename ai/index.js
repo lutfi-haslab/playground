@@ -31,7 +31,7 @@ export const chatBot = async (data, max_tokens) => {
 
 export const sendMessage = async (msgs, uniqueId) => {
   try {
-    const max_tokens = 3000;
+    const max_tokens = 4000;
     const data = await findBot(uniqueId);
 
     if (!data) {
@@ -71,6 +71,9 @@ export const sendMessage = async (msgs, uniqueId) => {
       }
     }
   } catch (error) {
-    return JSON.stringify(error);
+    await unsetListBot(uniqueId);
+    return {
+      content: "Token penuh dan telah direset, silahkan memulai percakapan kembali",
+    };
   }
 };
