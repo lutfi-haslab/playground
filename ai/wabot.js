@@ -24,10 +24,14 @@ function start(client) {
         const arr = body.split(" ");
         const words = arr.slice(1).join(" "); // "hello world this is lutfi"
         // do something with words
-        const result = await sendMessage(words, message.chatId);
-        console.log(result);
+        const { totalToken, msg } = await sendMessage(words, message.chatId);
         console.log(message.chatId);
-        await client.sendText(message.from, result?.content);
+        await client.sendText(
+          message.from,
+          msg?.content +
+            "\n" +
+            `token used: ${totalToken}, cost $${((totalToken * 0.002) / 1000).toFixed(5)}`
+        );
       }
     } catch (error) {
       await console.log(

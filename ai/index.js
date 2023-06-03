@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Configuration, OpenAIApi } from "openai";
 import * as readline from "node:readline";
 import { findBot, createBot, updateBot, unsetListBot } from "./fn.js";
+import axios from "axios";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -13,11 +14,10 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-export const chatBot = async (data, max_tokens) => {
+export const chatBot = async (data) => {
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: data,
-    max_tokens,
   });
 
   const totalToken = completion.data.usage?.total_tokens;
@@ -27,6 +27,31 @@ export const chatBot = async (data, max_tokens) => {
     totalToken,
     msg,
   };
+};
+
+export const chatBot2 = async (data, maxToken) => {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: data,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    const totalToken = response.data.usage?.total_tokens;
+    const msg = response.data.choices[0].message;
+
+    return { totalToken, msg };
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const sendMessage = async (msgs, uniqueId) => {
@@ -44,14 +69,14 @@ export const sendMessage = async (msgs, uniqueId) => {
         JSON.parse(jsonString)
       );
 
-      const { totalToken, msg } = await chatBot(parsedArray, max_tokens);
+      const { totalToken, msg } = await chatBot(parsedArray);
 
       if (totalToken > max_tokens) {
         await unsetListBot(uniqueId);
-        return msg;
+        return {totalToken, msg};
       } else {
         await updateBot(uniqueId, totalToken, msg);
-        return msg;
+        return {totalToken, msg};
       }
     } else {
       const result = await updateBot(uniqueId, undefined, {
@@ -61,19 +86,25 @@ export const sendMessage = async (msgs, uniqueId) => {
       const parsedArray = result?.context.map((jsonString) =>
         JSON.parse(jsonString)
       );
-      const { totalToken, msg } = await chatBot(parsedArray, max_tokens);
+
+      const { totalToken, msg } = await chatBot(parsedArray);
       if (totalToken > max_tokens) {
         await unsetListBot(uniqueId);
-        return msg;
+        return {totalToken, msg};
       } else {
         await updateBot(uniqueId, totalToken, msg);
-        return msg;
+        return {totalToken, msg};
       }
     }
   } catch (error) {
+    console.log(error);
     await unsetListBot(uniqueId);
     return {
-      content: "Token penuh dan telah direset, silahkan memulai percakapan kembali",
+      totalToken: 0,
+      msg: {
+        content:
+        "Token penuh dan telah direset, silahkan memulai percakapan kembali",
+      }
     };
   }
 };
