@@ -54,13 +54,13 @@ export const chatBot2 = async (data, maxToken) => {
   }
 };
 
-export const sendMessage = async (msgs, uniqueId) => {
+export const sendMessage = async (msgs, uniqueId, type) => {
   try {
     const max_tokens = 4000;
     const data = await findBot(uniqueId);
 
     if (!data) {
-      const result = await createBot(uniqueId, "wabot", 0, {
+      const result = await createBot(uniqueId, type, 0, {
         role: "user",
         content: msgs,
       });

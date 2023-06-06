@@ -26,16 +26,20 @@ function start(client) {
 
       if (body.startsWith("/chat ")) {
         // do something with words
-        const { totalToken, msg } = await sendMessage(words, message.chatId);
+        const { totalToken, msg } = await sendMessage(
+          words,
+          message.chatId,
+          "wabot"
+        );
         console.log(message.chatId);
         await client.sendText(
           message.from,
           msg?.content +
             "\n" +
-            `token used: ${totalToken}, cost $${(
-              (totalToken * 0.002) /
-              1000
-            ).toFixed(5)}`
+            `token used: ${totalToken}, cost Rp${(
+              ((totalToken * 0.002) / 1000) *
+              14879.95
+            ).toFixed(2)}`
         );
       } else if (body.startsWith("/menu")) {
         await client.sendText(
@@ -48,7 +52,7 @@ function start(client) {
       } else if (body.startsWith("/reset")) {
         const reset = await unsetListBot(message.chatId);
         if (reset) {
-          console.log("reset berhasil")
+          console.log("reset berhasil");
           await client.sendText(message.from, "Reset berhasil");
         }
       } else if (body.startsWith("/ai ")) {
@@ -59,10 +63,10 @@ function start(client) {
           message.from,
           msg?.content +
             "\n" +
-            `token used: ${totalToken}, cost $${(
-              (totalToken * 0.002) /
-              1000
-            ).toFixed(5)}`
+            `token used: ${totalToken}, cost Rp${(
+              ((totalToken * 0.002) / 1000) *
+              14879.95
+            ).toFixed(2)}`
         );
       } else {
         undefined;

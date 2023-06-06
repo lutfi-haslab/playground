@@ -49,17 +49,3 @@ export const findBot = async (uniqueId) => {
   });
   return findBot;
 };
-
-// createBot()
-// updateBot()
-const data = await findBot("123");
-const parsedArray = data?.context.map((jsonString) => JSON.parse(jsonString));
-
-console.log(parsedArray);
-// if(!data){
-//   await createBot("123", "wabot", 100, { role: "user", content: "msg" })
-// } else {
-//   await updateBot("123", 200, { role: "user", content: "msg" })
-// }
-
-// unsetListBot("123")
